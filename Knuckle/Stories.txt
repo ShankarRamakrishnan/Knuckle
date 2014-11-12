@@ -1,1 +1,1 @@
-As a Javascript compiler, i would like to have a syntax tree so that i can look in to that and create objects for relevant nodes in C#.
+As a Javascript compiler, i would like to have a syntax tree for "var x = 5 ;" so that i can look in to that and create objects for relevant nodes in C#.

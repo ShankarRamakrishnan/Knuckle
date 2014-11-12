@@ -1,4 +1,6 @@
-﻿namespace Knuckle.Javascript
+﻿using Knuckle.Javascript;
+
+namespace Knuckle.Javascript
 {
     internal class LexicalAnalyzer
     {
@@ -8,7 +10,7 @@
         {
             var rootGrammer = new Grammer
                               {
-                                  Keyword="Root"
+                                  Name="Root"
                               };
             _syntaxTree = new Node<Grammer>(rootGrammer, null);
         }
@@ -18,28 +20,44 @@
             var token = string.Empty;
             foreach (var c in javascriptCode)
             {
-                //if subsequent charters are part of the same
-                if (char.IsWhiteSpace(c) && token != string.Empty)
+                token = string.Concat(token, c);
+                if (token.IsGrammer())
                 {
-                    var tokenGrammer = new Grammer
-                                       {
-                                           Keyword = token
-                                       };
-
-                    var spaceTokenGrammer = new Grammer
-                    {
-                        Keyword = " "
-                    };
-                    var newNode = new Node<Grammer>(tokenGrammer, null);
-                    _syntaxTree.AddChild(newNode);
-                    newNode = new Node<Grammer>(spaceTokenGrammer, null);
-                    _syntaxTree.AddChild(newNode);
+                    CreateGrammerObjectAndAdd2SyntaxTree(token, true);
                     token = string.Empty;
+                    continue;
+                }
+                if (char.IsWhiteSpace(c))
+                {
+                    CreateGrammerObjectAndAdd2SyntaxTree(token, false);
                 }
                 else
-                    token = string.Concat(token, c);
+                {
+                    var allSpaces = token.Substring(0, token.Length-1);
+                    token = token.Substring(token.Length - 1, token.Length);
+                    CreateGrammerObjectAndAdd2SyntaxTree(token, false);
+                }
+
             }
             return _syntaxTree;
         }
+
+        private void CreateGrammerObjectAndAdd2SyntaxTree(string token, bool javascriptKeyword)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+                return;
+            var tokenGrammer = new Grammer { Name = token, JavascriptKeyword = javascriptKeyword };
+            _syntaxTree.AddChild(new Node<Grammer>(tokenGrammer, null));
+        }
+    }
+}
+
+public static class SomeClass
+{
+    public static bool IsGrammer(this string token)
+    {
+        // Check the condition for grammer
+        return JsGrammer.Keywords.Contains(token);
+
     }
 }
